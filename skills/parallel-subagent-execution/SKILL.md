@@ -16,9 +16,10 @@ Use this skill when the implementation plan contains an **Execution Graph** sect
 ## Setup
 
 1. Ensure you are in a git worktree (use `superpowers:using-git-worktrees` if not already set up)
-2. Read the plan, extract the Execution Graph
-3. Compute topological layer order from dependency and parallel group annotations
-4. Create a TodoWrite with all tasks
+2. Read the plan. If its header has a `**Design spec:**` field, read that file too — it is the source of truth for intent when a task's acceptance criteria are ambiguous.
+3. Extract the Execution Graph from the plan
+4. Compute topological layer order from dependency and parallel group annotations
+5. Create a TodoWrite with all tasks
 
 ## Per Layer
 

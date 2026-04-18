@@ -78,6 +78,8 @@ Each task is assigned a detail tier based on how much structure the implementer 
 
 > **For agentic workers:** REQUIRED SUB-SKILL: If this plan has an Execution Graph, use `superpowers:parallel-subagent-execution`. Otherwise use `superpowers:subagent-driven-development`. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+**Design spec:** `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
+
 **Goal:** [One sentence describing what this builds]
 
 **Architecture:** [2-3 sentences about approach]
@@ -86,6 +88,8 @@ Each task is assigned a detail tier based on how much structure the implementer 
 
 ---
 ```
+
+The `Design spec` field lets a fresh execution session (after `/clear`) locate the originating spec without carrying planning transcript forward. Omit the field only if no spec exists.
 
 ## Bite-Sized Task Granularity
 
@@ -173,8 +177,17 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 ## Execution Handoff
 
-After saving the plan:
+After saving the plan, print this to the human (replacing the paths):
 
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`.**
+> **Plan complete:** `docs/superpowers/plans/<filename>.md`
+> **Design spec:** `docs/superpowers/specs/<spec-filename>.md`
+>
+> To execute with a clean context window (recommended for large plans or when this session has grown long), run `/clear`, then paste:
+>
+> > Execute the plan at `docs/superpowers/plans/<filename>.md` using `superpowers:parallel-subagent-execution`.
+>
+> The execution skill reads the plan and its referenced design spec on its own. If this plan has no Execution Graph, use `superpowers:subagent-driven-development` instead.
+>
+> To continue in this session without clearing, just tell me to proceed.
 
-**Execution:** Use `superpowers:parallel-subagent-execution` if this plan has an Execution Graph (recommended for most plans). Use `superpowers:subagent-driven-development` for sequential-only plans."
+The spec path is **not** included in the paste prompt — it's in the plan header, so a fresh session discovers it by reading the plan first.
