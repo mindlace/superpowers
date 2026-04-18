@@ -1,9 +1,11 @@
 ---
 name: executing-plans
-description: Use when you have a written implementation plan to execute in a separate session with review checkpoints
+description: DEPRECATED — use superpowers:subagent-driven-development or superpowers:parallel-subagent-execution instead
 ---
 
-# Executing Plans
+> **DEPRECATED.** This skill is no longer recommended. Use `superpowers:parallel-subagent-execution` for plans with an Execution Graph, or `superpowers:subagent-driven-development` for sequential plans. Both provide subagent dispatch with review gates, which produces significantly higher quality output than solo execution. The content below is preserved for reference.
+
+# Executing Plans (Deprecated)
 
 ## Overview
 
