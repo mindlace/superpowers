@@ -23,6 +23,7 @@ Task tool (general-purpose):
     | Clarity | Requirements ambiguous enough to cause someone to build the wrong thing |
     | Scope | Focused enough for a single plan — not covering multiple independent subsystems |
     | YAGNI | Unrequested features, over-engineering |
+    | Independence | Are independent components identified? Are shared integration points called out? (Required for Execution Graph planning) |
 
     ## Calibration
 

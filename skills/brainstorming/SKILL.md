@@ -98,6 +98,14 @@ digraph brainstorming {
 - Can someone understand what a unit does without reading its internals? Can you change the internals without breaking consumers? If not, the boundaries need work.
 - Smaller, well-bounded units are also easier for you to work with - you reason better about code you can hold in context at once, and your edits are more reliable when files are focused. When a file grows large, that's often a signal that it's doing too much.
 
+**Independence analysis:**
+
+Before finishing the design, explicitly identify:
+- Which components can be built independently (no shared state, no interface dependency)
+- Which components share integration points (types, interfaces, APIs that parallel agents must agree on)
+
+This feeds directly into the implementation plan's Execution Graph. State it clearly in the design: "X and Y are independent — they can be built in parallel. Z depends on the interface defined by X." If everything is sequential, say so and explain why.
+
 **Working in existing codebases:**
 
 - Explore the current structure before proposing changes. Follow existing patterns.
