@@ -15,7 +15,6 @@ Task tool (superpowers:code-reviewer):
   BASE_SHA: [commit before task — run `git log --oneline` in worktree to find it]
   HEAD_SHA: [run `git rev-parse HEAD` in .worktrees/[task-id]]
   DESCRIPTION: [task summary]
-  WORKTREE: .worktrees/[task-id]
 ```
 
 **Before reviewing, read the implementer's rationale:**
