@@ -15,7 +15,7 @@ Use this skill when the implementation plan contains an **Execution Graph** sect
 
 ## Setup
 
-1. Ensure you are in a git worktree (use `superpowers:using-git-worktrees` if not already set up)
+1. Ensure you are on a feature branch worktree (use `superpowers:using-git-worktrees`). This is your merge target — implementer isolation is handled automatically per task via `isolation: "worktree"` on the Agent call.
 2. Read the plan. If its header has a `**Design spec:**` field, read that file too — it is the source of truth for intent when a task's acceptance criteria are ambiguous.
 3. Extract the Execution Graph from the plan
 4. Compute topological layer order from dependency and parallel group annotations
@@ -25,30 +25,26 @@ Use this skill when the implementation plan contains an **Execution Graph** sect
 
 For each parallel group (A, B, C… in topological order):
 
-1. For each task in the group, create a git worktree:
+1. Dispatch all implementer agents for the group **concurrently** using `isolation: "worktree"` on each Agent call (single message, multiple Agent tool calls — see `./implementer-prompt.md`). After each agent completes, capture the returned `path` and `branch`.
+2. As each implementer completes, run the two-stage review — dispatch reviewers with the implementer's returned `path` in their prompt (do not wait for sibling tasks)
+3. As each task passes both reviews, merge immediately into your feature branch:
    ```bash
-   git worktree add .worktrees/<task-id> -b <task-id>
+   git merge <branch>
    ```
-2. Dispatch all implementer agents for the group **concurrently** (single message, multiple Agent tool calls — see `./implementer-prompt.md`)
-3. As each implementer completes, run the two-stage review in that worktree (do not wait for sibling tasks)
-4. As each task passes both reviews, merge immediately from your main worktree:
+4. If merge produces a conflict, dispatch a conflict-resolution agent (see `./conflict-resolver-prompt.md`)
+5. Once all tasks in the group are merged, remove worktrees using the returned paths:
    ```bash
-   git merge <task-id>
+   git worktree remove <path>
    ```
-5. If merge produces a conflict, dispatch a conflict-resolution agent (see `./conflict-resolver-prompt.md`)
-6. Once all tasks in the group are merged, remove worktrees:
-   ```bash
-   git worktree remove .worktrees/<task-id>
-   ```
-7. Advance to the next group
+6. Advance to the next group
 
 ## Per Task: Implementer
 
-Dispatch using `./implementer-prompt.md`. Provide:
+Dispatch using `./implementer-prompt.md` with `isolation: "worktree"` on the Agent call. After the agent completes, capture the returned `path` and `branch`. Provide:
 - Task metadata at the appropriate **detail tier** from the Execution Graph (contract, skeleton+intent, or acceptance-criteria)
 - Acceptance criteria (always required)
 - Scene-setting context (where this fits, what depends on it)
-- The worktree path to work in: `.worktrees/<task-id>`
+- The worktree path to work in: the `path` value returned by the Agent tool
 
 The implementer produces:
 - Implementation satisfying acceptance criteria
@@ -57,7 +53,7 @@ The implementer produces:
 
 ## Per Task: Review
 
-Both reviewers work in the task's worktree and read the implementer's commit message via `git log` before reviewing.
+Both reviewers work in the task's worktree — pass the implementer's returned `path` in the reviewer prompt. Read the implementer's commit message via `git log` before reviewing.
 
 **Stage 1 — Spec compliance** (`./spec-reviewer-prompt.md`):
 - Did the agent build what was asked, nothing more, nothing less?
@@ -113,7 +109,9 @@ Each task's Execution Graph entry specifies an `**Effort:**` field. If absent, d
 - Advance to the next group before all current-group merges complete
 - Make implementer subagents read the plan file — provide full task text in the prompt
 - Skip scene-setting context
-- Start on main/master without a worktree
+- Start on main/master without a feature branch worktree
+- Manually create implementer worktrees with `git worktree add` — use `isolation: "worktree"` on the Agent call instead
+- Use a hardcoded worktree path like `.worktrees/<task-id>` — use the `path` returned by the Agent tool
 - Dispatch an `opus` implementer agent without explicit user approval
 - Use `opus` as a default when a task's model field is absent — default is `sonnet`
 - Override the plan's `**Effort:**` field based on your own judgment — pass it through as-is
@@ -125,7 +123,7 @@ Each task's Execution Graph entry specifies an `**Effort:**` field. If absent, d
 ## Integration
 
 **Required workflow skills:**
-- **superpowers:using-git-worktrees** — REQUIRED: Set up isolated workspace before starting
+- **superpowers:using-git-worktrees** — REQUIRED: Set up feature branch worktree as merge target before starting
 - **superpowers:writing-plans** — Creates plans with Execution Graphs this skill executes
 - **superpowers:finishing-a-development-branch** — Complete development after all tasks
 

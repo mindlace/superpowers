@@ -76,7 +76,9 @@ Task tool (general-purpose):
     6. Self-review (see below)
     7. Report back
 
-    Work from: .worktrees/[task-id]
+    Work from: [path returned by Agent tool]
+
+    **Shell commands:** Never compound `cd` with subsequent commands (e.g. `cd <path> && git diff`). Issue `cd` separately, then run commands assuming that directory.
 
     **While you work:** If you encounter something unexpected or unclear, ask. Don't guess or make assumptions.
 
