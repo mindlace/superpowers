@@ -16,18 +16,18 @@ Execute plan by dispatching fresh subagent per task, with two-stage review after
 ```dot
 digraph when_to_use {
     "Have implementation plan?" [shape=diamond];
+    "Plan has Execution Graph?" [shape=diamond];
     "Tasks mostly independent?" [shape=diamond];
-    "Stay in this session?" [shape=diamond];
+    "parallel-subagent-execution" [shape=box];
     "subagent-driven-development" [shape=box];
-    "executing-plans" [shape=box];
     "Manual execution or brainstorm first" [shape=box];
 
-    "Have implementation plan?" -> "Tasks mostly independent?" [label="yes"];
+    "Have implementation plan?" -> "Plan has Execution Graph?" [label="yes"];
     "Have implementation plan?" -> "Manual execution or brainstorm first" [label="no"];
-    "Tasks mostly independent?" -> "Stay in this session?" [label="yes"];
+    "Plan has Execution Graph?" -> "parallel-subagent-execution" [label="yes"];
+    "Plan has Execution Graph?" -> "Tasks mostly independent?" [label="no"];
+    "Tasks mostly independent?" -> "subagent-driven-development" [label="yes"];
     "Tasks mostly independent?" -> "Manual execution or brainstorm first" [label="no - tightly coupled"];
-    "Stay in this session?" -> "subagent-driven-development" [label="yes"];
-    "Stay in this session?" -> "executing-plans" [label="no - parallel session"];
 }
 ```
 
@@ -237,7 +237,7 @@ Done!
 - Start implementation on main/master branch without explicit user consent
 - Skip reviews (spec compliance OR code quality)
 - Proceed with unfixed issues
-- Dispatch multiple implementation subagents in parallel (conflicts)
+- Dispatch multiple implementation subagents in parallel without worktree isolation — use `superpowers:parallel-subagent-execution` for parallel dispatch
 - Make subagent read plan file (provide full text instead)
 - Skip scene-setting context (subagent needs to understand where task fits)
 - Ignore subagent questions (answer before letting them proceed)
@@ -273,5 +273,5 @@ Done!
 **Subagents should use:**
 - **superpowers:test-driven-development** - Subagents follow TDD for each task
 
-**Alternative workflow:**
-- **superpowers:executing-plans** - Use for parallel session instead of same-session execution
+**Alternative workflows:**
+- **superpowers:parallel-subagent-execution** - Use when plan has an Execution Graph (parallel dispatch with worktree isolation)
