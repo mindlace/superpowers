@@ -53,6 +53,8 @@ Each task is assigned a detail tier based on how much structure the implementer 
 
 **acceptance-criteria** — Use for isolated utilities with obvious shape. Provide behavioral spec (inputs, outputs, edge cases, errors). No structure prescribed.
 
+> **Model and tier are related but separate.** A `contract` tier task (fully specified) can often use `haiku`. A `skeleton+intent` task with complex invariants may need `sonnet`. Use `opus` only for tasks that genuinely require design judgment — if you find yourself marking many tasks `opus`, the plan is underspecified and should be revised. The brainstorming and writing-plans phases used Opus so the implementation tasks don't have to.
+
 ### Task Metadata Format
 
 ```markdown
@@ -62,6 +64,14 @@ Each task is assigned a detail tier based on how much structure the implementer 
 - **Depends on**: <task-id>, ... | none
 - **Parallel group**: A | B | C ...
 - **Detail tier**: contract | skeleton+intent | acceptance-criteria
+- **Model**: haiku | sonnet | opus
+  - `haiku` — mechanical, isolated, clear spec (1-2 files, no judgment calls)
+  - `sonnet` — integration/judgment work (multi-file, pattern matching, moderate complexity)
+  - `opus` — architecture or design tasks requiring sustained reasoning (rare in execution phase; see note)
+- **Effort**: low | medium | high (default: medium)
+  - `low` — follow the spec directly, minimal exploration, no extras
+  - `medium` — standard depth: read related code for context, cover expected edge cases in tests
+  - `high` — thorough: trace all call sites, cover edge cases exhaustively, validate assumptions explicitly
 - **Content** *(varies by tier)*:
   - If `contract`: `**Contract:** <explicit types/interfaces/signatures>`
   - If `skeleton+intent`: `**Skeleton + intent:** <function signatures + invariant description>`
@@ -172,6 +182,8 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 **3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 
 **4. Execution Graph coverage:** Does every task in the plan appear in the Execution Graph? Does every Execution Graph task have a corresponding plan task?
+
+**5. Model and effort annotation:** Does every Execution Graph task have `**Model:**` and `**Effort:**` fields? Tasks with `opus` should be rare — if more than ~20% are marked `opus`, the plan is underspecified. Effort should default to `medium` unless there's a specific reason to deviate.
 
 If you find issues, fix them inline. No need to re-review — just fix and move on.
 

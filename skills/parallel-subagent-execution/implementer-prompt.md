@@ -7,12 +7,19 @@ The `[DETAIL]` block varies by tier — paste the appropriate content from the t
 ```
 Task tool (general-purpose):
   description: "Implement [task-id]: [task name]"
+  model: "[haiku | sonnet | opus — from task's **Model:** field; default sonnet]"
   prompt: |
     You are implementing task [task-id]: [task name]
 
     ## Task Specification
 
     **Detail tier:** [contract | skeleton+intent | acceptance-criteria]
+    **Effort level:** [low | medium | high — from task's **Effort:** field; default medium]
+
+    Effort guidance:
+    - `low` — follow the spec directly, minimal exploration, no extras
+    - `medium` — standard depth: read related code for context, cover expected edge cases in tests
+    - `high` — thorough: trace all call sites, cover edge cases exhaustively, validate assumptions explicitly
 
     [Paste ONE of the following blocks based on the task's detail tier:]
 

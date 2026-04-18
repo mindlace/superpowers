@@ -84,9 +84,19 @@ Once the conflict agent commits a resolution, continue merging remaining branche
 
 ## Model Selection
 
-- **Mechanical tasks** (isolated, clear spec, 1-2 files): fast/cheap model
-- **Integration and judgment tasks** (multi-file, pattern matching): standard model
-- **Architecture, design, review tasks**: most capable model
+Each task's Execution Graph entry specifies a `**Model:**` field. Use it:
+
+- `haiku` — dispatch with `model: "haiku"`
+- `sonnet` — dispatch with `model: "sonnet"` (default if field is absent)
+- `opus` — **requires user approval before dispatch.** Ask: "Task [id] is marked `opus` — approve?" Do not dispatch until approved.
+
+Review agents (spec compliance, code quality) and conflict-resolution agents always use `sonnet`.
+
+If the plan has no `**Model:**` field on a task, default to `sonnet`.
+
+## Effort
+
+Each task's Execution Graph entry specifies an `**Effort:**` field. If absent, default to `medium`. Pass the effort level to the implementer via the prompt (see `./implementer-prompt.md`) — do not infer or override it based on context.
 
 ## Handling Implementer Status
 
@@ -104,6 +114,9 @@ Once the conflict agent commits a resolution, continue merging remaining branche
 - Make implementer subagents read the plan file — provide full task text in the prompt
 - Skip scene-setting context
 - Start on main/master without a worktree
+- Dispatch an `opus` implementer agent without explicit user approval
+- Use `opus` as a default when a task's model field is absent — default is `sonnet`
+- Override the plan's `**Effort:**` field based on your own judgment — pass it through as-is
 
 **If spec compliance review finds issues:** implementer fixes in the worktree, reviewer re-reviews. Do not merge until ✅.
 
