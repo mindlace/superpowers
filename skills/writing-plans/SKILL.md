@@ -7,7 +7,7 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
+Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, constraints, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. Frequent commits.
 
 Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
 
@@ -33,14 +33,41 @@ Before defining tasks, map out which files will be created or modified and what 
 
 This structure informs the task decomposition. Each task should produce self-contained changes that make sense independently.
 
-## Bite-Sized Task Granularity
+## Execution Graph
 
-**Each step is one action (2-5 minutes):**
-- "Write the failing test" - step
-- "Run it to make sure it fails" - step
-- "Implement the minimal code to make the test pass" - step
-- "Run the tests and make sure they pass" - step
-- "Commit" - step
+Every plan MUST include an **Execution Graph** section after the File Structure. The Execution Graph defines which tasks can run in parallel and what detail level each implementer receives.
+
+### Parallel Groups
+
+Tasks are assigned to lettered groups (A, B, C…). All tasks in a group are independent and can run concurrently. Group B runs only after all Group A tasks complete and merge. Assign groups based on dependency analysis: if task X must complete before task Y can start, Y goes in a later group.
+
+**Err toward parallelization.** If two tasks touch different files and aren't logically dependent, put them in the same group. Merge conflicts, if they occur, are handled by a conflict-resolution agent — they are not a reason to serialize work.
+
+### Detail Tiers
+
+Each task is assigned a detail tier based on how much structure the implementer needs:
+
+**contract** — Use at integration points shared between parallel agents, or anywhere two agents must implement against a shared interface. Provide explicit types, function signatures, and method names. Two agents implementing against a vague interface will diverge; contracts prevent this.
+
+**skeleton+intent** — Use where meaningful design choices exist. Provide function signatures and a description of the algorithm or invariants. The agent decides the internals.
+
+**acceptance-criteria** — Use for isolated utilities with obvious shape. Provide behavioral spec (inputs, outputs, edge cases, errors). No structure prescribed.
+
+### Task Metadata Format
+
+```markdown
+## Execution Graph
+
+### Task: <task-id>
+- **Depends on**: <task-id>, ... | none
+- **Parallel group**: A | B | C ...
+- **Detail tier**: contract | skeleton+intent | acceptance-criteria
+- **Content** *(varies by tier)*:
+  - If `contract`: `**Contract:** <explicit types/interfaces/signatures>`
+  - If `skeleton+intent`: `**Skeleton + intent:** <function signatures + invariant description>`
+  - If `acceptance-criteria`: *(omit this field — acceptance criteria below is sufficient)*
+- **Acceptance criteria**: <behavioral spec — always present regardless of tier>
+```
 
 ## Plan Document Header
 
@@ -49,7 +76,7 @@ This structure informs the task decomposition. Each task should produce self-con
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: If this plan has an Execution Graph, use `superpowers:parallel-subagent-execution`. Otherwise use `superpowers:subagent-driven-development`. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** [One sentence describing what this builds]
 
@@ -59,6 +86,17 @@ This structure informs the task decomposition. Each task should produce self-con
 
 ---
 ```
+
+## Bite-Sized Task Granularity
+
+**Each step is one action (2-5 minutes):**
+- "Write the failing test" - step
+- "Run it to make sure it fails" - step
+- "Implement the minimal code to make the test pass" - step
+- "Run the tests and make sure they pass" - step
+- "Commit" - step
+
+The above shows a code task. Non-code tasks (markdown edits, configuration, schema changes) use equivalent-granularity steps appropriate to their type. For Execution Graph plans, each task's steps need only cover what the assigned **detail tier** requires — not full implementations. (See **Execution Graph → Detail Tiers** above for what each tier's steps should contain.)
 
 ## Task Structure
 
@@ -108,7 +146,7 @@ git commit -m "feat: add specific feature"
 Every step must contain the actual content an engineer needs. These are **plan failures** — never write them:
 - "TBD", "TODO", "implement later", "fill in details"
 - "Add appropriate error handling" / "add validation" / "handle edge cases"
-- "Write tests for the above" (without actual test code)
+- "Write tests for the above" without showing what to test (for tasks that require tests)
 - "Similar to Task N" (repeat the code — the engineer may be reading tasks out of order)
 - Steps that describe what to do without showing how (code blocks required for code steps)
 - References to types, functions, or methods not defined in any task
@@ -117,7 +155,7 @@ Every step must contain the actual content an engineer needs. These are **plan f
 - Exact file paths always
 - Complete code in every step — if a step changes code, show the code
 - Exact commands with expected output
-- DRY, YAGNI, TDD, frequent commits
+- DRY, YAGNI, frequent commits
 
 ## Self-Review
 
@@ -129,24 +167,14 @@ After writing the complete plan, look at the spec with fresh eyes and check the 
 
 **3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 
-If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
+**4. Execution Graph coverage:** Does every task in the plan appear in the Execution Graph? Does every Execution Graph task have a corresponding plan task?
+
+If you find issues, fix them inline. No need to re-review — just fix and move on.
 
 ## Execution Handoff
 
-After saving the plan, offer execution choice:
+After saving the plan:
 
-**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`. Two execution options:**
+**"Plan complete and saved to `docs/superpowers/plans/<filename>.md`.**
 
-**1. Subagent-Driven (recommended)** - I dispatch a fresh subagent per task, review between tasks, fast iteration
-
-**2. Inline Execution** - Execute tasks in this session using executing-plans, batch execution with checkpoints
-
-**Which approach?"**
-
-**If Subagent-Driven chosen:**
-- **REQUIRED SUB-SKILL:** Use superpowers:subagent-driven-development
-- Fresh subagent per task + two-stage review
-
-**If Inline Execution chosen:**
-- **REQUIRED SUB-SKILL:** Use superpowers:executing-plans
-- Batch execution with checkpoints for review
+**Execution:** Use `superpowers:parallel-subagent-execution` if this plan has an Execution Graph (recommended for most plans). Use `superpowers:subagent-driven-development` for sequential-only plans."
