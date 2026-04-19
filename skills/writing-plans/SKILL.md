@@ -189,7 +189,14 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 
 ## Execution Handoff
 
-After saving the plan, print this to the human (replacing the paths):
+After saving the plan, commit it to git:
+
+```bash
+git add docs/superpowers/plans/<filename>.md
+git commit -m "docs: add implementation plan for <feature>"
+```
+
+Then print this to the human (replacing the paths):
 
 > **Plan complete:** `docs/superpowers/plans/<filename>.md`
 > **Design spec:** `docs/superpowers/specs/<spec-filename>.md`
