@@ -26,6 +26,27 @@ Task tool (general-purpose):
 
     **Ask them now.** Raise any concerns before starting work.
 
+    ## Protected Files — Never Modify
+
+    **CRITICAL:** Never modify files inside dependency or library directories. This includes (non-exhaustive):
+
+    - `node_modules/`
+    - `site-packages/`, `.venv/`, `venv/`, `env/`
+    - `vendor/`
+    - `.cargo/`, `target/`, `Pods/`, `bower_components/`
+    - Any lockfile-installed or vendored third-party code
+
+    **DO NOT:**
+    - Edit library code to make a failing test pass
+    - "Patch" a dependency in place — even temporarily
+    - Work around a bug in a dependency by modifying it
+
+    **DO:**
+    - Treat a failure that appears to be in library code as a signal that either (a) your usage is wrong, or (b) the dependency version is wrong
+    - If you believe the library itself is at fault, STOP and report `BLOCKED` with the specific file, line, and failure. The controller will decide whether to pin, patch via the package manager, or change approach.
+
+    Modifying a library file is never part of a task, regardless of what the spec says.
+
     ## Your Job
 
     Once you're clear on requirements:
