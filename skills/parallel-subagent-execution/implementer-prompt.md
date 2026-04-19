@@ -61,9 +61,31 @@ Task tool (general-purpose):
 
     **Ask them now.** Raise any concerns before starting work.
 
+    ## Orient Yourself (do this FIRST, before anything else)
+
+    You are running inside an isolated git worktree that the runtime created
+    for you. Your CWD is already set to it. Verify this before you touch
+    anything:
+
+    1. Run `pwd` — record the path.
+    2. Run `git rev-parse --show-toplevel` — must match `pwd`.
+    3. Run `git branch --show-current` — must look like an isolated branch
+       (e.g. starts with `worktree-agent-`). It must NOT be `main`, `master`,
+       or a `feature/*` / `fix/*` branch — those are the coordinator's
+       branches.
+
+    If any check fails, STOP and report BLOCKED with the raw output. Do not
+    commit. A mismatch means your commits would land on the coordinator's
+    branch.
+
+    **Never `cd` out of this directory.** Every bash command runs here. Never
+    compound `cd` with other commands (e.g. `cd <path> && git diff`) — issue
+    `cd` separately if you absolutely must, then run commands assuming that
+    directory.
+
     ## Your Job
 
-    Once you're clear on requirements:
+    Once orientation passes and you're clear on requirements:
     1. Implement what the spec requires
     2. Write tests satisfying the acceptance criteria — decide yourself when to write them, but they must exist and pass before you report DONE
     3. Verify all tests pass
@@ -75,10 +97,6 @@ Task tool (general-purpose):
     5. Commit
     6. Self-review (see below)
     7. Report back
-
-    Work from: [path returned by Agent tool]
-
-    **Shell commands:** Never compound `cd` with subsequent commands (e.g. `cd <path> && git diff`). Issue `cd` separately, then run commands assuming that directory.
 
     **While you work:** If you encounter something unexpected or unclear, ask. Don't guess or make assumptions.
 
@@ -132,6 +150,7 @@ Task tool (general-purpose):
     - Test results (N passing)
     - Files changed
     - Commit SHA
+    - Branch name (from `git branch --show-current` — the coordinator merges this)
     - Self-review findings (if any)
     - Concerns (if DONE_WITH_CONCERNS)
 ```

@@ -25,12 +25,13 @@ Use this skill when the implementation plan contains an **Execution Graph** sect
 
 For each parallel group (A, B, C… in topological order):
 
-1. Dispatch all implementer agents for the group **concurrently** using `isolation: "worktree"` on each Agent call (single message, multiple Agent tool calls — see `./implementer-prompt.md`). After each agent completes, capture the returned `path` and `branch`.
-2. As each implementer completes, run the two-stage review — dispatch reviewers with the implementer's returned `path` in their prompt (do not wait for sibling tasks)
-3. As each task passes both reviews, merge immediately into your feature branch:
+1. Dispatch all implementer agents for the group **concurrently** using `isolation: "worktree"` on each Agent call (single message, multiple Agent tool calls — see `./implementer-prompt.md`). After each agent completes, capture the returned `path` and `branch` from the Agent result — these are the isolated worktree the runtime created and the fresh branch committed to. Do not invent branch names.
+2. As each implementer completes, run the two-stage review — dispatch reviewers **without** `isolation` and fill `WORKTREE_PATH` in the reviewer prompt with the implementer's returned `path` (do not wait for sibling tasks)
+3. As each task passes both reviews, merge the implementer's returned `branch` into your feature branch:
    ```bash
-   git merge <branch>
+   git merge <branch>  # <branch> is the value from the Agent result, not invented
    ```
+   Before merging, sanity-check that `<branch>` is NOT your own feature branch name — if it is, isolation broke and you would be merging into yourself.
 4. If merge produces a conflict, dispatch a conflict-resolution agent (see `./conflict-resolver-prompt.md`)
 5. Once all tasks in the group are merged, remove worktrees using the returned paths:
    ```bash
@@ -53,7 +54,7 @@ The implementer produces:
 
 ## Per Task: Review
 
-Both reviewers work in the task's worktree — pass the implementer's returned `path` in the reviewer prompt. Read the implementer's commit message via `git log` before reviewing.
+Both reviewers work in the task's existing worktree. Dispatch reviewers **without** `isolation: "worktree"` and fill `WORKTREE_PATH` in the reviewer prompt with the implementer's returned `path` — they need to read the implementer's worktree, not create a new one. Read the implementer's commit message via `git log` before reviewing.
 
 **Stage 1 — Spec compliance** (`./spec-reviewer-prompt.md`):
 - Did the agent build what was asked, nothing more, nothing less?
@@ -112,6 +113,8 @@ Each task's Execution Graph entry specifies an `**Effort:**` field. If absent, d
 - Start on main/master without a feature branch worktree
 - Manually create implementer worktrees with `git worktree add` — use `isolation: "worktree"` on the Agent call instead
 - Use a hardcoded worktree path like `.worktrees/<task-id>` — use the `path` returned by the Agent tool
+- Dispatch reviewers with `isolation: "worktree"` — they must read the implementer's existing worktree via `WORKTREE_PATH`, not create their own
+- Merge a `<branch>` that matches your own feature branch name — that means isolation failed and the subagent committed to your branch; investigate before proceeding
 - Dispatch an `opus` implementer agent without explicit user approval
 - Use `opus` as a default when a task's model field is absent — default is `sonnet`
 - Override the plan's `**Effort:**` field based on your own judgment — pass it through as-is

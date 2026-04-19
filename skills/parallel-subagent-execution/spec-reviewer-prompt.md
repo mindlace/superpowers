@@ -4,6 +4,11 @@ Use this template when dispatching a spec compliance reviewer for a parallel tas
 
 **Purpose:** Verify the implementer built what was requested (nothing more, nothing less).
 
+**Parameters the coordinator fills in:**
+- `WORKTREE_PATH` — the `path` string returned by the implementer Agent call (the implementer's isolated worktree). Paste it in place of `[WORKTREE_PATH]` below.
+
+**Dispatch without `isolation: "worktree"`.** The reviewer must read the implementer's existing worktree, not create a new one.
+
 ```
 Task tool (general-purpose):
   description: "Spec compliance review for [task-id]"
@@ -24,7 +29,7 @@ Task tool (general-purpose):
     intent and design choices:
 
     ```bash
-    cd .worktrees/[task-id]
+    cd [WORKTREE_PATH]
     git log -1 --format="%B"
     ```
 
@@ -50,7 +55,7 @@ Task tool (general-purpose):
 
     ## Your Job
 
-    Working from: .worktrees/[task-id]
+    Working from: [WORKTREE_PATH]
 
     **Missing requirements:** Did they implement everything requested? Are there
     requirements they skipped? Did they claim something works but not implement it?
