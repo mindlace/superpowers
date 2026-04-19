@@ -1,8 +1,8 @@
 /**
- * Integration tests for the brainstorm server.
+ * Integration tests for the designing companion server.
  *
  * Tests the full server behavior: HTTP serving, WebSocket communication,
- * file watching, and the brainstorming workflow.
+ * file watching, and the designing workflow.
  *
  * Uses the `ws` npm package as a test client (test-only dependency,
  * not shipped to end users).
@@ -15,9 +15,9 @@ const fs = require('fs');
 const path = require('path');
 const assert = require('assert');
 
-const SERVER_PATH = path.join(__dirname, '../../skills/brainstorming/scripts/server.cjs');
+const SERVER_PATH = path.join(__dirname, '../../skills/designing/scripts/server.cjs');
 const TEST_PORT = 3334;
-const TEST_DIR = '/tmp/brainstorm-test';
+const TEST_DIR = '/tmp/tentacles-designing-test';
 const CONTENT_DIR = path.join(TEST_DIR, 'content');
 const STATE_DIR = path.join(TEST_DIR, 'state');
 
@@ -47,7 +47,7 @@ async function fetch(url) {
 
 function startServer() {
   return spawn('node', [SERVER_PATH], {
-    env: { ...process.env, BRAINSTORM_PORT: TEST_PORT, BRAINSTORM_DIR: TEST_DIR }
+    env: { ...process.env, TENTACLES_DESIGN_PORT: TEST_PORT, TENTACLES_DESIGN_DIR: TEST_DIR }
   });
 }
 
@@ -128,7 +128,7 @@ async function runTests() {
       const res = await fetch(`http://localhost:${TEST_PORT}/`);
       assert(res.body.includes('WebSocket'), 'Should have helper.js injected');
       assert(res.body.includes('toggleSelect'), 'Should have toggleSelect from helper');
-      assert(res.body.includes('brainstorm'), 'Should have brainstorm API from helper');
+      assert(res.body.includes('tentacles'), 'Should have tentacles API from helper');
     });
 
     await test('returns Content-Type text/html', async () => {
@@ -387,12 +387,12 @@ async function runTests() {
 
     await test('helper.js defines required APIs', () => {
       const helperContent = fs.readFileSync(
-        path.join(__dirname, '../../skills/brainstorming/scripts/helper.js'), 'utf-8'
+        path.join(__dirname, '../../skills/designing/scripts/helper.js'), 'utf-8'
       );
       assert(helperContent.includes('toggleSelect'), 'Should define toggleSelect');
       assert(helperContent.includes('sendEvent'), 'Should define sendEvent');
       assert(helperContent.includes('selectedChoice'), 'Should track selectedChoice');
-      assert(helperContent.includes('brainstorm'), 'Should expose brainstorm API');
+      assert(helperContent.includes('tentacles'), 'Should expose tentacles API');
       return Promise.resolve();
     });
 
@@ -401,7 +401,7 @@ async function runTests() {
 
     await test('frame template has required structure', () => {
       const template = fs.readFileSync(
-        path.join(__dirname, '../../skills/brainstorming/scripts/frame-template.html'), 'utf-8'
+        path.join(__dirname, '../../skills/designing/scripts/frame-template.html'), 'utf-8'
       );
       assert(template.includes('indicator-bar'), 'Should have indicator bar');
       assert(template.includes('indicator-text'), 'Should have indicator text');

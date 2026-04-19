@@ -8,11 +8,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGIN_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 TIMESTAMP=$(date +%s)
-OUTPUT_DIR="/tmp/superpowers-tests/${TIMESTAMP}/explicit-skill-requests/haiku"
+OUTPUT_DIR="/tmp/tentacles-tests/${TIMESTAMP}/explicit-skill-requests/haiku"
 mkdir -p "$OUTPUT_DIR"
 
 PROJECT_DIR="$OUTPUT_DIR/project"
-mkdir -p "$PROJECT_DIR/docs/superpowers/plans"
+mkdir -p "$PROJECT_DIR/docs/tentacles/plans"
 mkdir -p "$PROJECT_DIR/.claude"
 
 echo "=== Haiku Model Test with User CLAUDE.md ==="
@@ -31,7 +31,7 @@ else
 fi
 
 # Create a dummy plan file
-cat > "$PROJECT_DIR/docs/superpowers/plans/auth-system.md" << 'EOF'
+cat > "$PROJECT_DIR/docs/tentacles/plans/auth-system.md" << 'EOF'
 # Auth System Implementation Plan
 
 ## Task 1: Add User Model
@@ -49,8 +49,8 @@ EOF
 
 echo ""
 
-# Turn 1: Start brainstorming
-echo ">>> Turn 1: Brainstorming request..."
+# Turn 1: Start designing
+echo ">>> Turn 1: Designing request..."
 claude -p "I want to add user authentication to my app. Help me think through this." \
     --model haiku \
     --plugin-dir "$PLUGIN_DIR" \

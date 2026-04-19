@@ -13,14 +13,14 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
-**Context:** This should be run in a dedicated worktree (created by brainstorming skill).
+**Context:** This should be run in a dedicated worktree (created by designing skill).
 
-**Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
+**Save plans to:** `docs/tentacles/plans/YYYY-MM-DD-<feature-name>.md`
 - (User preferences for plan location override this default)
 
 ## Scope Check
 
-If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during brainstorming. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
+If the spec covers multiple independent subsystems, it should have been broken into sub-project specs during designing. If it wasn't, suggest breaking this into separate plans — one per subsystem. Each plan should produce working, testable software on its own.
 
 ## File Structure
 
@@ -53,7 +53,7 @@ Each task is assigned a detail tier based on how much structure the implementer 
 
 **acceptance-criteria** — Use for isolated utilities with obvious shape. Provide behavioral spec (inputs, outputs, edge cases, errors). No structure prescribed.
 
-> **Model and tier are related but separate.** A `contract` tier task (fully specified) can often use `haiku`. A `skeleton+intent` task with complex invariants may need `sonnet`. Use `opus` only for tasks that genuinely require design judgment — if you find yourself marking many tasks `opus`, the plan is underspecified and should be revised. The brainstorming and writing-plans phases used Opus so the implementation tasks don't have to.
+> **Model and tier are related but separate.** A `contract` tier task (fully specified) can often use `haiku`. A `skeleton+intent` task with complex invariants may need `sonnet`. Use `opus` only for tasks that genuinely require design judgment — if you find yourself marking many tasks `opus`, the plan is underspecified and should be revised. The designing and writing-plans phases used Opus so the implementation tasks don't have to.
 
 ### Task Metadata Format
 
@@ -86,9 +86,9 @@ Each task is assigned a detail tier based on how much structure the implementer 
 ```markdown
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: If this plan has an Execution Graph, use `superpowers:parallel-subagent-execution`. Otherwise use `superpowers:subagent-driven-development`. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: `tentacles:parallel-subagent-execution`. Every tentacles plan has an Execution Graph. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Design spec:** `docs/superpowers/specs/YYYY-MM-DD-<topic>-design.md`
+**Design spec:** `docs/tentacles/specs/YYYY-MM-DD-<topic>-design.md`
 
 **Goal:** [One sentence describing what this builds]
 
@@ -192,20 +192,20 @@ If you find issues, fix them inline. No need to re-review — just fix and move 
 After saving the plan, commit it to git:
 
 ```bash
-git add docs/superpowers/plans/<filename>.md
+git add docs/tentacles/plans/<filename>.md
 git commit -m "docs: add implementation plan for <feature>"
 ```
 
 Then print this to the human (replacing the paths):
 
-> **Plan complete:** `docs/superpowers/plans/<filename>.md`
-> **Design spec:** `docs/superpowers/specs/<spec-filename>.md`
+> **Plan complete:** `docs/tentacles/plans/<filename>.md`
+> **Design spec:** `docs/tentacles/specs/<spec-filename>.md`
 >
 > To execute with a clean context window (recommended for large plans or when this session has grown long), run `/clear`, then paste:
 >
-> > Execute the plan at `docs/superpowers/plans/<filename>.md` using `superpowers:parallel-subagent-execution`.
+> > Execute the plan at `docs/tentacles/plans/<filename>.md` using `tentacles:parallel-subagent-execution`.
 >
-> The execution skill reads the plan and its referenced design spec on its own. If this plan has no Execution Graph, use `superpowers:subagent-driven-development` instead.
+> The execution skill reads the plan and its referenced design spec on its own.
 >
 > To continue in this session without clearing, just tell me to proceed.
 

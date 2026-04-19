@@ -8,11 +8,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLUGIN_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 TIMESTAMP=$(date +%s)
-OUTPUT_DIR="/tmp/superpowers-tests/${TIMESTAMP}/explicit-skill-requests/extended-multiturn"
+OUTPUT_DIR="/tmp/tentacles-tests/${TIMESTAMP}/explicit-skill-requests/extended-multiturn"
 mkdir -p "$OUTPUT_DIR"
 
 PROJECT_DIR="$OUTPUT_DIR/project"
-mkdir -p "$PROJECT_DIR/docs/superpowers/plans"
+mkdir -p "$PROJECT_DIR/docs/tentacles/plans"
 
 echo "=== Extended Multi-Turn Test ==="
 echo "Output dir: $OUTPUT_DIR"
@@ -21,8 +21,8 @@ echo ""
 
 cd "$PROJECT_DIR"
 
-# Turn 1: Start brainstorming
-echo ">>> Turn 1: Brainstorming request..."
+# Turn 1: Start designing
+echo ">>> Turn 1: Designing request..."
 claude -p "I want to add user authentication to my app. Help me think through this." \
     --plugin-dir "$PLUGIN_DIR" \
     --dangerously-skip-permissions \
@@ -31,7 +31,7 @@ claude -p "I want to add user authentication to my app. Help me think through th
     > "$OUTPUT_DIR/turn1.json" 2>&1 || true
 echo "Done."
 
-# Turn 2: Answer a brainstorming question
+# Turn 2: Answer a designing question
 echo ">>> Turn 2: Answering questions..."
 claude -p "Let's use JWT tokens with 24-hour expiry. Email/password registration." \
     --continue \

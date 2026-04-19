@@ -1,28 +1,28 @@
 #!/usr/bin/env bash
-# Windows lifecycle tests for the brainstorm server.
+# Windows lifecycle tests for the designing companion server.
 #
-# Verifies that the brainstorm server survives the 60-second lifecycle
+# Verifies that the designing companion server survives the 60-second lifecycle
 # check on Windows, where OWNER_PID monitoring is disabled because the
 # MSYS2 PID namespace is invisible to Node.js.
 #
 # Requirements:
 #   - Node.js in PATH
-#   - Run from the repository root, or set SUPERPOWERS_ROOT
+#   - Run from the repository root, or set TENTACLES_ROOT
 #   - On Windows: Git Bash (OSTYPE=msys*)
 #
 # Usage:
-#   bash tests/brainstorm-server/windows-lifecycle.test.sh
+#   bash tests/designing-server/windows-lifecycle.test.sh
 set -uo pipefail
 
 # ========== Configuration ==========
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="${SUPERPOWERS_ROOT:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
-START_SCRIPT="$REPO_ROOT/skills/brainstorming/scripts/start-server.sh"
-STOP_SCRIPT="$REPO_ROOT/skills/brainstorming/scripts/stop-server.sh"
-SERVER_JS="$REPO_ROOT/skills/brainstorming/scripts/server.js"
+REPO_ROOT="${TENTACLES_ROOT:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
+START_SCRIPT="$REPO_ROOT/skills/designing/scripts/start-server.sh"
+STOP_SCRIPT="$REPO_ROOT/skills/designing/scripts/stop-server.sh"
+SERVER_JS="$REPO_ROOT/skills/designing/scripts/server.js"
 
-TEST_DIR="${TMPDIR:-/tmp}/brainstorm-win-test-$$"
+TEST_DIR="${TMPDIR:-/tmp}/tentacles-designing-win-test-$$"
 
 passed=0
 failed=0
@@ -91,7 +91,7 @@ http_check() {
 # ========== Platform Detection ==========
 
 echo ""
-echo "=== Brainstorm Server Windows Lifecycle Tests ==="
+echo "=== Designing Server Windows Lifecycle Tests ==="
 echo "Platform: ${OSTYPE:-unknown}"
 echo "MSYSTEM: ${MSYSTEM:-unset}"
 echo "Node: $(node --version 2>/dev/null || echo 'not found')"
@@ -142,7 +142,7 @@ else
   skip "OWNER_PID is empty on Windows" "not on Windows"
 fi
 
-# ========== Test 2: start-server.sh passes empty BRAINSTORM_OWNER_PID ==========
+# ========== Test 2: start-server.sh passes empty TENTACLES_DESIGN_OWNER_PID ==========
 
 if [[ "$is_windows" == "true" ]]; then
   # Use a fake 'node' that captures the env var and exits
@@ -150,7 +150,7 @@ if [[ "$is_windows" == "true" ]]; then
   mkdir -p "$FAKE_NODE_DIR"
   cat > "$FAKE_NODE_DIR/node" <<'FAKENODE'
 #!/usr/bin/env bash
-echo "CAPTURED_OWNER_PID=${BRAINSTORM_OWNER_PID:-__UNSET__}"
+echo "CAPTURED_OWNER_PID=${TENTACLES_DESIGN_OWNER_PID:-__UNSET__}"
 exit 0
 FAKENODE
   chmod +x "$FAKE_NODE_DIR/node"
@@ -159,15 +159,15 @@ FAKENODE
   owner_pid_value=$(echo "$captured" | grep "CAPTURED_OWNER_PID=" | head -1 | sed 's/CAPTURED_OWNER_PID=//')
 
   if [[ "$owner_pid_value" == "" || "$owner_pid_value" == "__UNSET__" ]]; then
-    pass "start-server.sh passes empty BRAINSTORM_OWNER_PID on Windows"
+    pass "start-server.sh passes empty TENTACLES_DESIGN_OWNER_PID on Windows"
   else
-    fail "start-server.sh passes empty BRAINSTORM_OWNER_PID on Windows" \
+    fail "start-server.sh passes empty TENTACLES_DESIGN_OWNER_PID on Windows" \
          "Expected empty or unset, got '$owner_pid_value'"
   fi
 
   rm -rf "$FAKE_NODE_DIR" "$TEST_DIR/session"
 else
-  skip "start-server.sh passes empty BRAINSTORM_OWNER_PID" "not on Windows"
+  skip "start-server.sh passes empty TENTACLES_DESIGN_OWNER_PID" "not on Windows"
 fi
 
 # ========== Test 3: Auto-foreground detection on Windows ==========
@@ -209,11 +209,11 @@ mkdir -p "$TEST_DIR/survival"
 
 echo "  Starting server (will wait ~75s to verify survival past lifecycle check)..."
 
-BRAINSTORM_DIR="$TEST_DIR/survival" \
-BRAINSTORM_HOST="127.0.0.1" \
-BRAINSTORM_URL_HOST="localhost" \
-BRAINSTORM_OWNER_PID="" \
-BRAINSTORM_PORT=$((49152 + RANDOM % 16383)) \
+TENTACLES_DESIGN_DIR="$TEST_DIR/survival" \
+TENTACLES_DESIGN_HOST="127.0.0.1" \
+TENTACLES_DESIGN_URL_HOST="localhost" \
+TENTACLES_DESIGN_OWNER_PID="" \
+TENTACLES_DESIGN_PORT=$((49152 + RANDOM % 16383)) \
   node "$SERVER_JS" > "$TEST_DIR/survival/.server.log" 2>&1 &
 SERVER_PID=$!
 
@@ -267,11 +267,11 @@ while kill -0 "$BAD_PID" 2>/dev/null; do
   BAD_PID=$((BAD_PID + 1))
 done
 
-BRAINSTORM_DIR="$TEST_DIR/control" \
-BRAINSTORM_HOST="127.0.0.1" \
-BRAINSTORM_URL_HOST="localhost" \
-BRAINSTORM_OWNER_PID="$BAD_PID" \
-BRAINSTORM_PORT=$((49152 + RANDOM % 16383)) \
+TENTACLES_DESIGN_DIR="$TEST_DIR/control" \
+TENTACLES_DESIGN_HOST="127.0.0.1" \
+TENTACLES_DESIGN_URL_HOST="localhost" \
+TENTACLES_DESIGN_OWNER_PID="$BAD_PID" \
+TENTACLES_DESIGN_PORT=$((49152 + RANDOM % 16383)) \
   node "$SERVER_JS" > "$TEST_DIR/control/.server.log" 2>&1 &
 CONTROL_PID=$!
 
@@ -311,11 +311,11 @@ echo "--- Clean Shutdown ---"
 
 mkdir -p "$TEST_DIR/stop-test"
 
-BRAINSTORM_DIR="$TEST_DIR/stop-test" \
-BRAINSTORM_HOST="127.0.0.1" \
-BRAINSTORM_URL_HOST="localhost" \
-BRAINSTORM_OWNER_PID="" \
-BRAINSTORM_PORT=$((49152 + RANDOM % 16383)) \
+TENTACLES_DESIGN_DIR="$TEST_DIR/stop-test" \
+TENTACLES_DESIGN_HOST="127.0.0.1" \
+TENTACLES_DESIGN_URL_HOST="localhost" \
+TENTACLES_DESIGN_OWNER_PID="" \
+TENTACLES_DESIGN_PORT=$((49152 + RANDOM % 16383)) \
   node "$SERVER_JS" > "$TEST_DIR/stop-test/.server.log" 2>&1 &
 STOP_TEST_PID=$!
 echo "$STOP_TEST_PID" > "$TEST_DIR/stop-test/.server.pid"

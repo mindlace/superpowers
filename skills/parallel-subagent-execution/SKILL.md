@@ -11,11 +11,11 @@ Execute an implementation plan by traversing its Execution Graph: dispatch all t
 
 ## When to Use
 
-Use this skill when the implementation plan contains an **Execution Graph** section. If the plan has no Execution Graph, use `superpowers:subagent-driven-development` instead.
+Use this skill when executing any tentacles implementation plan. Every tentacles plan has an **Execution Graph** section that this skill dispatches against.
 
 ## Setup
 
-1. Ensure you are on a feature branch worktree (use `superpowers:using-git-worktrees`). This is your merge target — implementer isolation is handled automatically per task via `isolation: "worktree"` on the Agent call.
+1. Ensure you are on a feature branch worktree (use `tentacles:using-git-worktrees`). This is your merge target — implementer isolation is handled automatically per task via `isolation: "worktree"` on the Agent call.
 2. Read the plan. If its header has a `**Design spec:**` field, read that file too — it is the source of truth for intent when a task's acceptance criteria are ambiguous.
 3. Extract the Execution Graph from the plan
 4. Compute topological layer order from dependency and parallel group annotations
@@ -126,9 +126,9 @@ Each task's Execution Graph entry specifies an `**Effort:**` field. If absent, d
 ## Integration
 
 **Required workflow skills:**
-- **superpowers:using-git-worktrees** — REQUIRED: Set up feature branch worktree as merge target before starting
-- **superpowers:writing-plans** — Creates plans with Execution Graphs this skill executes
-- **superpowers:finishing-a-development-branch** — Complete development after all tasks
+- **tentacles:using-git-worktrees** — REQUIRED: Set up feature branch worktree as merge target before starting
+- **tentacles:writing-plans** — Creates plans with Execution Graphs this skill executes
+- **tentacles:finishing-a-development-branch** — Complete development after all tasks
 
 **Prompt templates:**
 - `./implementer-prompt.md` — Dispatch implementation subagent
@@ -136,5 +136,3 @@ Each task's Execution Graph entry specifies an `**Effort:**` field. If absent, d
 - `./code-quality-reviewer-prompt.md` — Dispatch code quality reviewer
 - `./conflict-resolver-prompt.md` — Dispatch conflict resolution agent
 
-**Alternative for sequential plans:**
-- **superpowers:subagent-driven-development** — Use when plan has no Execution Graph

@@ -12,7 +12,7 @@ Use this template when dispatching a code quality reviewer for a parallel task.
 **Dispatch without `isolation: "worktree"`.** The reviewer must read the implementer's existing worktree, not create a new one.
 
 ```
-Task tool (superpowers:code-reviewer):
+Task tool (tentacles:code-reviewer):
   Use template at requesting-code-review/code-reviewer.md
 
   WHAT_WAS_IMPLEMENTED: [from implementer's report]
