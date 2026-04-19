@@ -1,198 +1,77 @@
-# Superpowers
+# Tentacles
 
-Superpowers is a complete software development methodology for your coding agents, built on top of a set of composable skills and some initial instructions that make sure your agent uses them.
+A Claude Code plugin for **parallel subagent development**: design → dependency-ordered plan → worktree-isolated parallel execution.
 
-## How it works
+Named after the octopus — distributed brains acting in parallel, each tentacle capable of independent work while the whole remains coherent.
 
-It starts from the moment you fire up your coding agent. As soon as it sees that you're building something, it *doesn't* just jump into trying to write code. Instead, it steps back and asks you what you're really trying to do. 
+## Credit & relationship to superpowers
 
-Once it's teased a spec out of the conversation, it shows it to you in chunks short enough to actually read and digest. 
+Tentacles is a fork of Jesse Vincent's [obra/superpowers](https://github.com/obra/superpowers). The skill-authoring philosophy, review-loop architecture, and most of the core skills originate there — tentacles would not exist without that foundation.
 
-After you've signed off on the design, your agent puts together an implementation plan that's clear enough for an enthusiastic junior engineer with poor taste, no judgement, no project context, and an aversion to testing to follow. It emphasizes true red/green TDD, YAGNI (You Aren't Gonna Need It), and DRY. 
+This fork exists because the parallel-execution path has diverged enough in intent to warrant its own identity:
 
-Next up, once you say "go", it launches a *subagent-driven-development* process, having agents work through each engineering task, inspecting and reviewing their work, and continuing forward. It's not uncommon for Claude to be able to work autonomously for a couple hours at a time without deviating from the plan you put together.
+| | superpowers | tentacles |
+|---|---|---|
+| Planning | flexible, multiple plan shapes | always a dependency-oriented Execution Graph |
+| Execution | sequential (`subagent-driven-development`) + parallel options | parallel only (`parallel-subagent-execution`) |
+| Tests | `test-driven-development` (RED-GREEN-REFACTOR) | `tests-required` (tests must exist and pass, but not test-first) |
+| Scope | broad toolkit (debugging, skill-authoring, multiple harnesses) | narrow: design → plan → parallel execution, Claude Code only |
+| Subagent autonomy | more prescriptive | more implementation freedom within per-task detail tiers |
 
-There's a bunch more to it, but that's the core of the system. And because the skills trigger automatically, you don't need to do anything special. Your coding agent just has Superpowers.
+If you want the broader toolkit, use superpowers. If you want parallel-only with more subagent autonomy, use tentacles. They are designed to coexist — different plugin names, different skill namespaces.
 
+## The main flow
 
-## Sponsorship
+```
+designing  →  writing-plans  →  parallel-subagent-execution
+(Socratic    (dependency-      (dispatch implementer subagents
+ refinement)  ordered plan      per parallel group in isolated
+              with Execution    worktrees; merge per-task as
+              Graph)            reviews pass)
+```
 
-If Superpowers has helped you do stuff that makes money and you are so inclined, I'd greatly appreciate it if you'd consider [sponsoring my opensource work](https://github.com/sponsors/obra).
-
-Thanks! 
-
-- Jesse
-
+Supporting skills: `using-git-worktrees`, `verification-before-completion`, `tests-required`, `requesting-code-review`, `receiving-code-review`, `finishing-a-development-branch`, `dispatching-parallel-agents`.
 
 ## Installation
 
-**Note:** Installation differs by platform. 
+Tentacles targets **Claude Code** only.
 
-### Claude Code Official Marketplace
-
-Superpowers is available via the [official Claude plugin marketplace](https://claude.com/plugins/superpowers)
-
-Install the plugin from Anthropic's official marketplace:
+### From a local checkout
 
 ```bash
-/plugin install superpowers@claude-plugins-official
+git clone <this-repo> ~/.claude/plugins/tentacles
 ```
 
-### Claude Code (Superpowers Marketplace)
+Claude Code picks up plugins under `~/.claude/plugins/` automatically. Start a new session and the `SessionStart` hook will inject the `using-tentacles` bootstrap.
 
-The Superpowers marketplace provides Superpowers and some other related plugins for Claude Code.
+### Verifying installation
 
-In Claude Code, register the marketplace first:
+In a fresh Claude Code session, the `Skill` tool should list `tentacles:*` skills. If you see `superpowers:*` instead, you're running the upstream plugin.
 
-```bash
-/plugin marketplace add obra/superpowers-marketplace
-```
+## Skill catalogue
 
-Then install the plugin from this marketplace:
-
-```bash
-/plugin install superpowers@superpowers-marketplace
-```
-
-### OpenAI Codex CLI
-
-- Open plugin search interface
-
-```bash
-/plugins
-```
-
-Search for Superpowers
-
-```bash
-superpowers
-```
-
-Select `Install Plugin`
-
-### OpenAI Codex App
-
-- In the Codex app, click on Plugins in the sidebar.
-- You should see `Superpowers` in the Coding section. 
-- Click the `+` next to Superpowers and follow the prompts.
-
-
-### Cursor (via Plugin Marketplace)
-
-In Cursor Agent chat, install from marketplace:
-
-```text
-/add-plugin superpowers
-```
-
-or search for "superpowers" in the plugin marketplace.
-
-### OpenCode
-
-Tell OpenCode:
-
-```
-Fetch and follow instructions from https://raw.githubusercontent.com/obra/superpowers/refs/heads/main/.opencode/INSTALL.md
-```
-
-**Detailed docs:** [docs/README.opencode.md](docs/README.opencode.md)
-
-### GitHub Copilot CLI
-
-```bash
-copilot plugin marketplace add obra/superpowers-marketplace
-copilot plugin install superpowers@superpowers-marketplace
-```
-
-### Gemini CLI
-
-```bash
-gemini extensions install https://github.com/obra/superpowers
-```
-
-To update:
-
-```bash
-gemini extensions update superpowers
-```
-
-## The Basic Workflow
-
-1. **brainstorming** - Activates before writing code. Refines rough ideas through questions, explores alternatives, presents design in sections for validation. Saves design document.
-
-2. **using-git-worktrees** - Activates after design approval. Creates isolated workspace on new branch, runs project setup, verifies clean test baseline.
-
-3. **writing-plans** - Activates with approved design. Breaks work into bite-sized tasks (2-5 minutes each). Every task has exact file paths, complete code, verification steps.
-
-4. **subagent-driven-development** or **executing-plans** - Activates with plan. Dispatches fresh subagent per task with two-stage review (spec compliance, then code quality), or executes in batches with human checkpoints.
-
-5. **test-driven-development** - Activates during implementation. Enforces RED-GREEN-REFACTOR: write failing test, watch it fail, write minimal code, watch it pass, commit. Deletes code written before tests.
-
-6. **requesting-code-review** - Activates between tasks. Reviews against plan, reports issues by severity. Critical issues block progress.
-
-7. **finishing-a-development-branch** - Activates when tasks complete. Verifies tests, presents options (merge/PR/keep/discard), cleans up worktree.
-
-**The agent checks for relevant skills before any task.** Mandatory workflows, not suggestions.
-
-## What's Inside
-
-### Skills Library
-
-**Testing**
-- **test-driven-development** - RED-GREEN-REFACTOR cycle (includes testing anti-patterns reference)
-
-**Debugging**
-- **systematic-debugging** - 4-phase root cause process (includes root-cause-tracing, defense-in-depth, condition-based-waiting techniques)
-- **verification-before-completion** - Ensure it's actually fixed
-
-**Collaboration** 
-- **brainstorming** - Socratic design refinement
-- **writing-plans** - Detailed implementation plans
-- **executing-plans** - Batch execution with checkpoints
-- **dispatching-parallel-agents** - Concurrent subagent workflows
-- **requesting-code-review** - Pre-review checklist
-- **receiving-code-review** - Responding to feedback
-- **using-git-worktrees** - Parallel development branches
-- **finishing-a-development-branch** - Merge/PR decision workflow
-- **subagent-driven-development** - Fast iteration with two-stage review (spec compliance, then code quality)
-
-**Meta**
-- **writing-skills** - Create new skills following best practices (includes testing methodology)
-- **using-superpowers** - Introduction to the skills system
+| Skill | Purpose |
+|---|---|
+| `using-tentacles` | Session-start bootstrap; skill discipline |
+| `designing` | Socratic design refinement; writes spec to `docs/tentacles/specs/` |
+| `writing-plans` | Dependency-oriented implementation plan with Execution Graph |
+| `parallel-subagent-execution` | Dispatch worktree-isolated implementers per parallel group |
+| `dispatching-parallel-agents` | General pattern for concurrent independent tasks |
+| `using-git-worktrees` | Worktree setup for isolated feature branches |
+| `verification-before-completion` | Evidence-based verification before success claims |
+| `tests-required` | Tests must exist and pass, but not required to be written first |
+| `requesting-code-review` | Dispatch reviewer subagents with focused context |
+| `receiving-code-review` | Handle review feedback with rigor |
+| `finishing-a-development-branch` | Merge / PR / cleanup after execution completes |
 
 ## Philosophy
 
-- **Test-Driven Development** - Write tests first, always
-- **Systematic over ad-hoc** - Process over guessing
-- **Complexity reduction** - Simplicity as primary goal
-- **Evidence over claims** - Verify before declaring success
-
-Read [the original release announcement](https://blog.fsck.com/2025/10/09/superpowers/).
-
-## Contributing
-
-The general contribution process for Superpowers is below. Keep in mind that we don't generally accept contributions of new skills and that any updates to skills must work across all of the coding agents we support.
-
-1. Fork the repository
-2. Switch to the 'dev' branch
-3. Create a branch for your work
-4. Follow the `writing-skills` skill for creating and testing new and modified skills
-5. Submit a PR, being sure to fill in the pull request template.
-
-See `skills/writing-skills/SKILL.md` for the complete guide.
-
-## Updating
-
-Superpowers updates are somewhat coding-agent dependent, but are often automatic.
+- **Design before code.** Every project — even "simple" ones — goes through designing first.
+- **Plans encode parallelism explicitly.** If two tasks are independent, the plan says so and they run concurrently.
+- **Isolation is cheap.** Worktrees make parallel implementer dispatch safe; merge conflicts are an expected cost, handled by a conflict-resolution agent.
+- **Tests exist, and pass, before completion.** Ordering is up to the implementer.
+- **Implementers get the minimum prescriptive structure they need.** Detail tiers (contract / skeleton+intent / acceptance-criteria) calibrate that per-task.
 
 ## License
 
-MIT License - see LICENSE file for details
-
-## Community
-
-Superpowers is built by [Jesse Vincent](https://blog.fsck.com) and the rest of the folks at [Prime Radiant](https://primeradiant.com).
-
-- **Discord**: [Join us](https://discord.gg/35wsABTejz) for community support, questions, and sharing what you're building with Superpowers
-- **Issues**: https://github.com/obra/superpowers/issues
-- **Release announcements**: [Sign up](https://primeradiant.com/superpowers/) to get notified about new versions
+MIT. See `LICENSE` — upstream copyright (Jesse Vincent) is preserved, fork copyright added.
