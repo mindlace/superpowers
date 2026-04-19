@@ -1,6 +1,6 @@
 ---
-name: using-superpowers
-description: Use when starting any conversation - establishes how to find and use skills, requiring Skill tool invocation before ANY response including clarifying questions
+name: using-tentacles
+description: Use when starting any conversation - establishes how to find and use tentacles skills, requiring Skill tool invocation before ANY response including clarifying questions
 ---
 
 <SUBAGENT-STOP>
@@ -17,27 +17,17 @@ This is not negotiable. This is not optional. You cannot rationalize your way ou
 
 ## Instruction Priority
 
-Superpowers skills override default system prompt behavior, but **user instructions always take precedence**:
+Tentacles skills override default system prompt behavior, but **user instructions always take precedence**:
 
-1. **User's explicit instructions** (CLAUDE.md, GEMINI.md, AGENTS.md, direct requests) — highest priority
-2. **Superpowers skills** — override default system behavior where they conflict
+1. **User's explicit instructions** (CLAUDE.md, direct requests) — highest priority
+2. **Tentacles skills** — override default system behavior where they conflict
 3. **Default system prompt** — lowest priority
 
-If CLAUDE.md, GEMINI.md, or AGENTS.md says "don't use TDD" and a skill says "always use TDD," follow the user's instructions. The user is in control.
+If CLAUDE.md says "don't use the parallel dispatcher" and a skill says "always dispatch in parallel," follow the user's instructions. The user is in control.
 
 ## How to Access Skills
 
-**In Claude Code:** Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you—follow it directly. Never use the Read tool on skill files.
-
-**In Copilot CLI:** Use the `skill` tool. Skills are auto-discovered from installed plugins. The `skill` tool works the same as Claude Code's `Skill` tool.
-
-**In Gemini CLI:** Skills activate via the `activate_skill` tool. Gemini loads skill metadata at session start and activates the full content on demand.
-
-**In other environments:** Check your platform's documentation for how skills are loaded.
-
-## Platform Adaptation
-
-Skills use Claude Code tool names. Non-CC platforms: see `references/copilot-tools.md` (Copilot CLI), `references/codex-tools.md` (Codex) for tool equivalents. Gemini CLI users get the tool mapping loaded automatically via GEMINI.md.
+Use the `Skill` tool. When you invoke a skill, its content is loaded and presented to you — follow it directly. Never use the Read tool on skill files.
 
 # Using Skills
 
@@ -49,8 +39,8 @@ Skills use Claude Code tool names. Non-CC platforms: see `references/copilot-too
 digraph skill_flow {
     "User message received" [shape=doublecircle];
     "About to EnterPlanMode?" [shape=doublecircle];
-    "Already brainstormed?" [shape=diamond];
-    "Invoke brainstorming skill" [shape=box];
+    "Already designed?" [shape=diamond];
+    "Invoke designing skill" [shape=box];
     "Might any skill apply?" [shape=diamond];
     "Invoke Skill tool" [shape=box];
     "Announce: 'Using [skill] to [purpose]'" [shape=box];
@@ -59,10 +49,10 @@ digraph skill_flow {
     "Follow skill exactly" [shape=box];
     "Respond (including clarifications)" [shape=doublecircle];
 
-    "About to EnterPlanMode?" -> "Already brainstormed?";
-    "Already brainstormed?" -> "Invoke brainstorming skill" [label="no"];
-    "Already brainstormed?" -> "Might any skill apply?" [label="yes"];
-    "Invoke brainstorming skill" -> "Might any skill apply?";
+    "About to EnterPlanMode?" -> "Already designed?";
+    "Already designed?" -> "Invoke designing skill" [label="no"];
+    "Already designed?" -> "Might any skill apply?" [label="yes"];
+    "Invoke designing skill" -> "Might any skill apply?";
 
     "User message received" -> "Might any skill apply?";
     "Might any skill apply?" -> "Invoke Skill tool" [label="yes, even 1%"];
@@ -75,9 +65,19 @@ digraph skill_flow {
 }
 ```
 
+## The Main Flow
+
+Tentacles is built around one workflow: **design → plan → parallel execution**.
+
+1. **`tentacles:designing`** — Socratic refinement of intent and requirements before any code or plan.
+2. **`tentacles:writing-plans`** — Turn the design into a dependency-oriented Execution Graph.
+3. **`tentacles:parallel-subagent-execution`** — Dispatch worktree-isolated implementer subagents per parallel group, merge as groups complete.
+
+Supporting skills: `tentacles:using-git-worktrees`, `tentacles:verification-before-completion`, `tentacles:tests-required`, `tentacles:requesting-code-review`, `tentacles:receiving-code-review`, `tentacles:finishing-a-development-branch`, `tentacles:dispatching-parallel-agents`.
+
 ## Red Flags
 
-These thoughts mean STOP—you're rationalizing:
+These thoughts mean STOP — you're rationalizing:
 
 | Thought | Reality |
 |---------|---------|
@@ -98,17 +98,17 @@ These thoughts mean STOP—you're rationalizing:
 
 When multiple skills could apply, use this order:
 
-1. **Process skills first** (brainstorming, debugging) - these determine HOW to approach the task
-2. **Implementation skills second** (frontend-design, mcp-builder) - these guide execution
+1. **Process skills first** (designing, writing-plans) — these determine HOW to approach the task
+2. **Execution skills second** (parallel-subagent-execution, dispatching-parallel-agents) — these guide dispatch
+3. **Checkpoint skills last** (verification-before-completion, requesting-code-review, finishing-a-development-branch)
 
-"Let's build X" → brainstorming first, then implementation skills.
-"Fix this bug" → debugging first, then domain-specific skills.
+"Let's build X" → designing first, then writing-plans, then parallel execution.
 
 ## Skill Types
 
-**Rigid** (TDD, debugging): Follow exactly. Don't adapt away discipline.
+**Rigid** (verification-before-completion, tests-required): Follow exactly. Don't adapt away discipline.
 
-**Flexible** (patterns): Adapt principles to context.
+**Flexible** (designing, patterns): Adapt principles to context.
 
 The skill itself tells you which.
 
