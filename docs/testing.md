@@ -1,6 +1,6 @@
-# Testing Superpowers Skills
+# Testing Tentacles Skills
 
-This document describes how to test Superpowers skills, particularly the integration tests for complex skills like `subagent-driven-development`.
+This document describes how to test tentacles skills, particularly the integration tests for complex skills like `parallel-subagent-execution`.
 
 ## Overview
 
